@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">Consumption Deadline Calculator Icon</title>
+  <desc id="desc">A soft green and cream icon with a date card and check mark for the consumption deadline calculator.</desc>
+  <defs>
+    <linearGradient id="bg" x1="164" y1="108" x2="862" y2="920" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fbf7ee"/>
+      <stop offset="0.38" stop-color="#eef3de"/>
+      <stop offset="0.75" stop-color="#dbeacc"/>
+      <stop offset="1" stop-color="#d1e4c5"/>
+    </linearGradient>
+    <radialGradient id="glowWhite" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(250 186) rotate(32) scale(320)">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.98"/>
+      <stop offset="0.5" stop-color="#ffffff" stop-opacity="0.26"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowGreen" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(812 802) rotate(180) scale(300)">
+      <stop offset="0" stop-color="#bfe7c6" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#bfe7c6" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="card" x1="262" y1="190" x2="730" y2="836" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fffef8" stop-opacity="0.96"/>
+      <stop offset="1" stop-color="#fbf8ef" stop-opacity="0.92"/>
+    </linearGradient>
+    <linearGradient id="cardStroke" x1="258" y1="194" x2="746" y2="842" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#d7e6cf"/>
+    </linearGradient>
+    <linearGradient id="head" x1="300" y1="244" x2="714" y2="396" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#245f46"/>
+      <stop offset="1" stop-color="#1a4a36"/>
+    </linearGradient>
+    <linearGradient id="badge" x1="628" y1="566" x2="782" y2="722" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1f6f4a"/>
+      <stop offset="1" stop-color="#2e8a5f"/>
+    </linearGradient>
+    <filter id="shadow" x="152" y="126" width="720" height="792" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="40" stdDeviation="42" flood-color="#425d39" flood-opacity="0.18"/>
+    </filter>
+    <filter id="blur" x="0" y="0" width="1024" height="1024" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="28"/>
+    </filter>
+  </defs>
+
+  <rect width="1024" height="1024" rx="236" fill="url(#bg)"/>
+  <ellipse cx="250" cy="186" rx="256" ry="220" fill="url(#glowWhite)" filter="url(#blur)"/>
+  <ellipse cx="812" cy="802" rx="248" ry="224" fill="url(#glowGreen)" filter="url(#blur)"/>
+  <circle cx="838" cy="194" r="112" fill="#ffffff" fill-opacity="0.56" filter="url(#blur)"/>
+
+  <g filter="url(#shadow)">
+    <rect x="214" y="166" width="596" height="696" rx="170" fill="url(#card)"/>
+    <rect x="214.5" y="166.5" width="595" height="695" rx="169.5" fill="none" stroke="url(#cardStroke)" stroke-opacity="0.96"/>
+    <path d="M214 252C214 204.504 252.504 166 300 166H724C771.496 166 810 204.504 810 252V370H214V252Z" fill="url(#head)"/>
+    <path d="M248 194C328 168 432 160 518 166" fill="none" stroke="#ffffff" stroke-opacity="0.42" stroke-linecap="round" stroke-width="12"/>
+
+    <circle cx="334" cy="268" r="18" fill="#d9f0dd"/>
+    <circle cx="512" cy="268" r="18" fill="#d9f0dd"/>
+    <circle cx="690" cy="268" r="18" fill="#d9f0dd"/>
+
+    <rect x="294" y="430" width="436" height="278" rx="54" fill="#ffffff" fill-opacity="0.72"/>
+    <rect x="294.5" y="430.5" width="435" height="277" rx="53.5" fill="none" stroke="#d4e3cf"/>
+    <rect x="340" y="480" width="214" height="34" rx="17" fill="#dcebd8"/>
+    <rect x="340" y="542" width="150" height="28" rx="14" fill="#edf5ea"/>
+    <rect x="340" y="592" width="180" height="28" rx="14" fill="#edf5ea"/>
+    <rect x="340" y="642" width="132" height="28" rx="14" fill="#edf5ea"/>
+
+    <rect x="584" y="520" width="118" height="118" rx="34" fill="url(#badge)"/>
+    <path d="M614 579L641 606L675 560" fill="none" stroke="#f5fff8" stroke-linecap="round" stroke-linejoin="round" stroke-width="24"/>
+
+    <text x="512" y="792" text-anchor="middle" font-family="SF Pro Rounded, Avenir Next, sans-serif" font-size="52" font-weight="800" fill="#1f6f4a" letter-spacing="-2">BEST BEFORE</text>
+  </g>
+</svg>
