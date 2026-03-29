@@ -393,6 +393,28 @@
         background: rgba(31, 111, 74, 0.08);
       }
 
+      .summary-box {
+        margin-top: 14px;
+      }
+
+      .summary-title {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .summary-text {
+        display: block;
+        color: var(--text);
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 1.6;
+      }
+
       .calc-result {
         min-height: 78px;
       }
@@ -547,6 +569,14 @@
               오늘 날짜를 기준으로 남은 날짜를 더해 소비기한 마지막 날을 잡고, 제조일을 1일 차로 포함해
               제조일을 역산해.
             </p>
+            <div class="button-row" style="margin-top: 0">
+              <button class="secondary" id="copyPresetButton" type="button">복사하기</button>
+            </div>
+            <div class="message note summary-box">
+              <span class="summary-title">한 번에 보기</span>
+              <span class="summary-text" id="presetSummaryText">-</span>
+            </div>
+            <div class="message note" id="reverseCopyFeedback" hidden></div>
             <div class="preset-grid" id="presetGrid"></div>
           </section>
 
@@ -636,6 +666,9 @@
       const reverseRemainingInput = document.getElementById("reverseRemainingInput");
       const reverseTermInput = document.getElementById("reverseTermInput");
       const reverseBaseCopy = document.getElementById("reverseBaseCopy");
+      const copyPresetButton = document.getElementById("copyPresetButton");
+      const presetSummaryText = document.getElementById("presetSummaryText");
+      const reverseCopyFeedback = document.getElementById("reverseCopyFeedback");
       const presetGrid = document.getElementById("presetGrid");
       const reverseErrorBox = document.getElementById("reverseErrorBox");
       const reverseBaseDateResult = document.getElementById("reverseBaseDateResult");
@@ -684,6 +717,10 @@
         const day = date.getUTCDate();
         const weekday = weekdays[date.getUTCDay()];
         return `${year}년 ${month}월 ${day}일 (${weekday})`;
+      }
+
+      function formatMonthDay(date) {
+        return `${date.getUTCMonth() + 1}/${date.getUTCDate()}`;
       }
 
       function showError(box, message) {
@@ -824,11 +861,57 @@
         return { expiryDate, manufactureDate };
       }
 
+      function buildPresetSummary(baseDate) {
+        return PRESET_PRODUCTS.map((product) => {
+          const { manufactureDate } = calculateReverse(baseDate, product.remainingDays, product.totalTerm);
+          return `${product.name} ${formatMonthDay(manufactureDate)}`;
+        }).join(", ");
+      }
+
+      function setReverseCopyFeedback(message, isError = false) {
+        reverseCopyFeedback.hidden = false;
+        reverseCopyFeedback.className = `message ${isError ? "error" : "note"}`;
+        reverseCopyFeedback.textContent = message;
+      }
+
+      async function copyTextToClipboard(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return true;
+        }
+
+        const helper = document.createElement("textarea");
+        helper.value = text;
+        helper.setAttribute("readonly", "");
+        helper.style.position = "fixed";
+        helper.style.opacity = "0";
+        helper.style.pointerEvents = "none";
+        document.body.append(helper);
+        helper.focus();
+        helper.select();
+
+        let copied = false;
+        try {
+          copied = document.execCommand("copy");
+        } finally {
+          helper.remove();
+        }
+
+        if (!copied) {
+          throw new Error("copy-failed");
+        }
+
+        return true;
+      }
+
       function renderPresetProducts() {
         const baseDate = utcToday();
         reverseBaseCopy.textContent = `오늘 기준 ${formatKorean(
           baseDate
         )}를 바탕으로 남은 날짜를 더한 뒤 제조일을 역산해.`;
+        presetSummaryText.textContent = buildPresetSummary(baseDate);
+        reverseCopyFeedback.hidden = true;
+        reverseCopyFeedback.textContent = "";
         presetGrid.innerHTML = "";
 
         PRESET_PRODUCTS.forEach((product) => {
@@ -968,6 +1051,10 @@
         panels.forEach((panel) => {
           panel.hidden = panel.dataset.panel !== targetTab;
         });
+
+        if (targetTab === "reverse") {
+          renderPresetProducts();
+        }
       }
 
       [yearInput, monthInput, dayInput].forEach((input) => {
@@ -1007,6 +1094,19 @@
         button.addEventListener("click", () => {
           setActiveTab(button.dataset.tab);
         });
+      });
+
+      copyPresetButton.addEventListener("click", async () => {
+        const baseDate = utcToday();
+        const summary = buildPresetSummary(baseDate);
+        presetSummaryText.textContent = summary;
+
+        try {
+          await copyTextToClipboard(summary);
+          setReverseCopyFeedback("복사 완료. 상품명과 제조일만 한 줄로 복사했어.");
+        } catch (error) {
+          setReverseCopyFeedback("복사에 실패했어. 한 번 더 눌러보거나 직접 길게 눌러 복사해줘.", true);
+        }
       });
 
       setToday();
