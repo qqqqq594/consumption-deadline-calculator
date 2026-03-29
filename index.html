@@ -8,7 +8,7 @@
     />
     <meta
       name="description"
-      content="제조일과 소비기한 일수를 기준으로 최종 소비기한과 미리 확인할 날짜를 계산하는 개인용 소비기한 계산기"
+      content="제조일 기준 소비기한 계산과 남은 날짜 기준 제조일 역산을 함께 쓰는 개인용 소비기한 계산기"
     />
     <meta name="theme-color" content="#f7f4ea" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -21,7 +21,7 @@
     <title>소비기한 계산기</title>
     <style>
       :root {
-        --safe-top: calc(env(safe-area-inset-top, 0px) + 110px);
+        --safe-top: calc(env(safe-area-inset-top, 0px) + 14px);
         --safe-bottom: max(env(safe-area-inset-bottom, 0px), 18px);
         --bg-top: #f7f4ea;
         --bg-bottom: #dbeacc;
@@ -34,6 +34,7 @@
         --accent-soft: #dbf0e2;
         --danger: #b23b2e;
         --warning: #b78017;
+        --shadow: 0 18px 42px rgba(54, 72, 39, 0.08);
       }
 
       * {
@@ -68,7 +69,7 @@
       }
 
       .hero {
-        padding: 0 4px 18px;
+        padding: 0 4px 16px;
       }
 
       .eyebrow {
@@ -101,18 +102,34 @@
         gap: 14px;
       }
 
+      .panel-stack {
+        display: grid;
+        gap: 14px;
+      }
+
       .card {
         background: var(--card);
         border: 1px solid var(--border);
         border-radius: 24px;
         padding: 18px;
-        box-shadow: 0 18px 42px rgba(54, 72, 39, 0.08);
+        box-shadow: var(--shadow);
         backdrop-filter: blur(8px);
+      }
+
+      .compact-card {
+        padding: 12px;
       }
 
       .card-title {
         margin: 0 0 14px;
         font-size: 18px;
+      }
+
+      .card-copy {
+        margin: -4px 0 14px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.5;
       }
 
       .row {
@@ -126,6 +143,29 @@
 
       .double {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .tabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .tab {
+        min-height: 54px;
+        border: 1px solid rgba(31, 111, 74, 0.12);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.72);
+        color: var(--muted);
+        font: inherit;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .tab.active {
+        background: linear-gradient(180deg, rgba(31, 111, 74, 0.14), rgba(31, 111, 74, 0.06));
+        color: var(--accent);
+        border-color: rgba(31, 111, 74, 0.22);
       }
 
       label {
@@ -223,6 +263,24 @@
         background: #fff1ed;
       }
 
+      .message {
+        margin-top: 12px;
+        padding: 14px 15px;
+        border-radius: 16px;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .error {
+        background: #fff1ed;
+        color: var(--danger);
+      }
+
+      .note {
+        background: rgba(33, 45, 26, 0.06);
+        color: var(--muted);
+      }
+
       .table-wrap {
         overflow: hidden;
         border-radius: 18px;
@@ -270,27 +328,84 @@
         font-weight: 700;
       }
 
-      .message {
-        margin-top: 12px;
-        padding: 14px 15px;
-        border-radius: 16px;
-        font-size: 14px;
-        line-height: 1.5;
+      .preset-grid {
+        display: grid;
+        gap: 12px;
       }
 
-      .error {
-        background: #fff1ed;
-        color: var(--danger);
+      .preset-card {
+        border-radius: 18px;
+        padding: 16px;
+        background: #fffdf8;
+        border: 1px solid rgba(31, 111, 74, 0.1);
+        display: grid;
+        gap: 10px;
       }
 
-      .note {
-        background: rgba(33, 45, 26, 0.06);
+      .preset-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: baseline;
+      }
+
+      .preset-name {
+        font-size: 20px;
+        font-weight: 700;
+      }
+
+      .preset-badge {
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(31, 111, 74, 0.08);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .preset-meta {
+        display: grid;
+        gap: 8px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .mini-card {
+        border-radius: 14px;
+        padding: 12px;
+        background: rgba(219, 240, 226, 0.36);
+      }
+
+      .mini-label {
+        display: block;
         color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .mini-value {
+        display: block;
+        margin-top: 6px;
+        font-size: 17px;
+        font-weight: 700;
+      }
+
+      .emphasis-card {
+        background: rgba(31, 111, 74, 0.08);
+      }
+
+      .calc-result {
+        min-height: 78px;
+      }
+
+      [hidden] {
+        display: none !important;
       }
 
       @media (max-width: 420px) {
         .triple,
-        .double {
+        .double,
+        .tabs,
+        .preset-meta {
           grid-template-columns: 1fr;
         }
 
@@ -308,114 +423,198 @@
         <span class="eyebrow">Use-by Date</span>
         <h1>소비기한 계산기</h1>
         <p class="subtitle">
-          제조일과 일수를 넣으면 민법 기간 계산 원칙인 <strong>초일 불산입</strong>을 반영해
-          소비기한 마지막 날과 그 전 날짜들을 계산해준다.
+          제조일을 <strong>1일 차</strong>로 보고 소비기한을 계산하고, 오늘 기준 남은 날짜만으로
+          제조일을 역산하는 새 탭도 같이 쓸 수 있게 정리했어.
         </p>
       </section>
 
       <section class="stack">
-        <section class="card">
-          <h2 class="card-title">1. 제조일 입력</h2>
-          <div class="row triple">
-            <div>
-              <label for="yearInput">년</label>
-              <input id="yearInput" type="number" inputmode="numeric" placeholder="2026" />
-            </div>
-            <div>
-              <label for="monthInput">월</label>
-              <input id="monthInput" type="number" inputmode="numeric" placeholder="3" />
-            </div>
-            <div>
-              <label for="dayInput">일</label>
-              <input id="dayInput" type="number" inputmode="numeric" placeholder="10" />
-            </div>
+        <section class="card compact-card">
+          <div class="tabs" role="tablist" aria-label="소비기한 계산 방식 선택">
+            <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="forward">
+              제조일로 계산
+            </button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="reverse">
+              제조일 역산
+            </button>
           </div>
-          <div style="margin-top: 12px">
-            <label for="datePicker">날짜 선택기로 바로 고르기</label>
-            <input id="datePicker" type="date" />
-          </div>
-          <p class="hint">
-            수동 입력과 날짜 선택기는 서로 자동으로 맞춰진다. 가능한 실제 제조일을 정확히 넣어야
-            한다.
-          </p>
         </section>
 
-        <section class="card">
-          <h2 class="card-title">2. 제조일로부터 며칠까지인지 입력</h2>
-          <div class="row double">
-            <div>
-              <label for="termInput">제조일로부터 X일</label>
-              <input id="termInput" type="number" min="0" inputmode="numeric" value="10" />
+        <section class="panel-stack" id="forwardPanel" data-panel="forward">
+          <section class="card">
+            <h2 class="card-title">1. 제조일 입력</h2>
+            <div class="row triple">
+              <div>
+                <label for="yearInput">년</label>
+                <input id="yearInput" type="number" inputmode="numeric" placeholder="2026" />
+              </div>
+              <div>
+                <label for="monthInput">월</label>
+                <input id="monthInput" type="number" inputmode="numeric" placeholder="3" />
+              </div>
+              <div>
+                <label for="dayInput">일</label>
+                <input id="dayInput" type="number" inputmode="numeric" placeholder="10" />
+              </div>
             </div>
-            <div>
-              <label for="minusInput">최종 소비기한에서 X일 전</label>
-              <input id="minusInput" type="number" min="0" inputmode="numeric" value="3" />
+            <div style="margin-top: 12px">
+              <label for="datePicker">날짜 선택기로 바로 고르기</label>
+              <input id="datePicker" type="date" />
             </div>
-          </div>
-          <div class="button-row">
-            <button class="primary" id="calculateButton" type="button">계산하기</button>
-            <button class="secondary" id="todayButton" type="button">제조일을 오늘로</button>
-          </div>
-          <p class="hint">
-            이 계산기는 <strong>제조일은 세지 않고 다음 날부터 1일차</strong>로 계산한다. 그래서
-            제조일로부터 X일의 최종 소비기한 마지막 날은 일반적으로 <strong>제조일 + X일</strong>
-            날짜가 된다.
-          </p>
+            <p class="hint">
+              날짜 선택기는 오늘 날짜를 기본값으로 열어둘게. 수동 입력과 날짜 선택기는 서로 자동으로
+              맞춰진다.
+            </p>
+          </section>
+
+          <section class="card">
+            <h2 class="card-title">2. 소비기한 일수 입력</h2>
+            <div class="row double">
+              <div>
+                <label for="termInput">제조일 포함 총 소비기한 일수</label>
+                <input id="termInput" type="number" min="1" inputmode="numeric" value="10" />
+              </div>
+              <div>
+                <label for="minusInput">최종 소비기한에서 X일 전</label>
+                <input id="minusInput" type="number" min="0" inputmode="numeric" value="3" />
+              </div>
+            </div>
+            <div class="button-row">
+              <button class="primary" id="calculateButton" type="button">계산하기</button>
+              <button class="secondary" id="todayButton" type="button">제조일을 오늘로</button>
+            </div>
+            <p class="hint">
+              이제는 <strong>제조일이 바로 1일 차</strong>야. 그래서 제조일 포함 총 X일 상품의 소비기한
+              마지막 날은 <strong>제조일 + (X - 1)일</strong>로 계산해.
+            </p>
+          </section>
+
+          <section class="card">
+            <h2 class="card-title">3. 계산 결과</h2>
+            <div class="result-grid">
+              <div class="result-card">
+                <span class="result-label">제조일</span>
+                <span class="result-value" id="manufactureResult">-</span>
+              </div>
+              <div class="result-card legal">
+                <span class="result-label">법적 소비기한 마지막 날</span>
+                <span class="result-value" id="expiryResult">-</span>
+              </div>
+              <div class="result-card legal">
+                <span class="result-label">법적으로 먹을 수 있는 마지막 시점</span>
+                <span class="result-value" id="legalUntilResult">-</span>
+              </div>
+              <div class="result-card expired">
+                <span class="result-label">법적으로 소비기한이 지난 시점</span>
+                <span class="result-value" id="expiredFromResult">-</span>
+              </div>
+              <div class="result-card">
+                <span class="result-label">최종 소비기한에서 X일 전 날짜</span>
+                <span class="result-value" id="minusResult">-</span>
+              </div>
+              <div class="result-card">
+                <span class="result-label">오늘 기준 상태</span>
+                <span class="result-value" id="statusResult">-</span>
+              </div>
+            </div>
+            <div class="message note" id="legalNote">
+              개별 제품 표시사항이 우선이고, 실제 표시 방식이나 관련 규정 해석은 제품군별 사정이 있을
+              수 있다. 이 계산기는 입력한 날짜와 일수를 기준으로 날짜 계산을 돕는 용도다.
+            </div>
+            <div class="message error" id="errorBox" hidden></div>
+          </section>
+
+          <section class="card">
+            <h2 class="card-title">4. 소비기한 1일 전부터 7일 전까지</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>구분</th>
+                    <th>날짜</th>
+                  </tr>
+                </thead>
+                <tbody id="countdownBody"></tbody>
+              </table>
+            </div>
+          </section>
         </section>
 
-        <section class="card">
-          <h2 class="card-title">3. 계산 결과</h2>
-          <div class="result-grid">
-            <div class="result-card">
-              <span class="result-label">제조일</span>
-              <span class="result-value" id="manufactureResult">-</span>
-            </div>
-            <div class="result-card legal">
-              <span class="result-label">법적 소비기한 마지막 날</span>
-              <span class="result-value" id="expiryResult">-</span>
-            </div>
-            <div class="result-card legal">
-              <span class="result-label">법적으로 먹을 수 있는 마지막 시점</span>
-              <span class="result-value" id="legalUntilResult">-</span>
-            </div>
-            <div class="result-card expired">
-              <span class="result-label">법적으로 소비기한이 지난 시점</span>
-              <span class="result-value" id="expiredFromResult">-</span>
-            </div>
-            <div class="result-card">
-              <span class="result-label">최종 소비기한에서 X일 전 날짜</span>
-              <span class="result-value" id="minusResult">-</span>
-            </div>
-            <div class="result-card">
-              <span class="result-label">오늘 기준 상태</span>
-              <span class="result-value" id="statusResult">-</span>
-            </div>
-          </div>
-          <div class="message note" id="legalNote">
-            개별 제품 표시사항이 우선이고, 실제 표시 방식이나 관련 규정 해석은 제품군별 사정이 있을
-            수 있다. 이 계산기는 입력한 날짜와 일수를 기준으로 날짜 계산을 돕는 용도다.
-          </div>
-          <div class="message error" id="errorBox" hidden></div>
-        </section>
+        <section class="panel-stack" id="reversePanel" data-panel="reverse" hidden>
+          <section class="card">
+            <h2 class="card-title">1. 오늘 기준 고정 상품 제조일 역산</h2>
+            <p class="card-copy" id="reverseBaseCopy">
+              오늘 날짜를 기준으로 남은 날짜를 더해 소비기한 마지막 날을 잡고, 제조일을 1일 차로 포함해
+              제조일을 역산해.
+            </p>
+            <div class="preset-grid" id="presetGrid"></div>
+          </section>
 
-        <section class="card">
-          <h2 class="card-title">4. 소비기한 1일 전부터 7일 전까지</h2>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>구분</th>
-                  <th>날짜</th>
-                </tr>
-              </thead>
-              <tbody id="countdownBody"></tbody>
-            </table>
-          </div>
+          <section class="card">
+            <h2 class="card-title">2. 직접 입력해서 제조일 계산</h2>
+            <p class="card-copy">
+              상품명 없이 숫자 두 개만 넣으면 돼. 남은 날짜는 <strong>오늘부터의 순수 날짜</strong>로
+              넣고, 총 소비기한은 <strong>제조일 포함 일수</strong>로 계산해.
+            </p>
+            <div class="row double">
+              <div>
+                <label for="reverseRemainingInput">오늘 기준 남은 날짜</label>
+                <input
+                  id="reverseRemainingInput"
+                  type="number"
+                  min="0"
+                  inputmode="numeric"
+                  placeholder="예: 7"
+                />
+              </div>
+              <div>
+                <label for="reverseTermInput">총 소비기한</label>
+                <input
+                  id="reverseTermInput"
+                  type="number"
+                  min="1"
+                  inputmode="numeric"
+                  placeholder="예: 30"
+                />
+              </div>
+            </div>
+            <p class="hint">
+              기준일은 항상 오늘이야. 예를 들어 오늘 7일 남은 30일 상품이면 제조일은 자동으로
+              역산된다.
+            </p>
+            <div class="message error" id="reverseErrorBox" hidden></div>
+          </section>
+
+          <section class="card">
+            <h2 class="card-title">3. 직접 계산 결과</h2>
+            <div class="result-grid">
+              <div class="result-card">
+                <span class="result-label">기준일</span>
+                <span class="result-value" id="reverseBaseDateResult">-</span>
+              </div>
+              <div class="result-card">
+                <span class="result-label">소비기한 마지막 날</span>
+                <span class="result-value" id="reverseExpiryResult">-</span>
+              </div>
+              <div class="result-card legal emphasis-card">
+                <span class="result-label">제조일</span>
+                <span class="result-value calc-result" id="reverseManufactureResult">
+                  남은 날짜와 총 소비기한을 넣으면 여기서 제조일을 바로 확인할 수 있어.
+                </span>
+              </div>
+            </div>
+          </section>
         </section>
       </section>
     </main>
 
     <script>
+      const PRESET_PRODUCTS = [
+        { name: "김치", remainingDays: 7, totalTerm: 30 },
+        { name: "연어", remainingDays: 0, totalTerm: 16 },
+        { name: "막걸리", remainingDays: 3, totalTerm: 45 },
+      ];
+
       const yearInput = document.getElementById("yearInput");
       const monthInput = document.getElementById("monthInput");
       const dayInput = document.getElementById("dayInput");
@@ -434,6 +633,18 @@
       const countdownBody = document.getElementById("countdownBody");
       const errorBox = document.getElementById("errorBox");
 
+      const reverseRemainingInput = document.getElementById("reverseRemainingInput");
+      const reverseTermInput = document.getElementById("reverseTermInput");
+      const reverseBaseCopy = document.getElementById("reverseBaseCopy");
+      const presetGrid = document.getElementById("presetGrid");
+      const reverseErrorBox = document.getElementById("reverseErrorBox");
+      const reverseBaseDateResult = document.getElementById("reverseBaseDateResult");
+      const reverseExpiryResult = document.getElementById("reverseExpiryResult");
+      const reverseManufactureResult = document.getElementById("reverseManufactureResult");
+
+      const tabButtons = Array.from(document.querySelectorAll("[data-tab]"));
+      const panels = Array.from(document.querySelectorAll("[data-panel]"));
+
       let syncingInputs = false;
 
       function toUtcDate(year, month, day) {
@@ -446,6 +657,11 @@
           return null;
         }
         return date;
+      }
+
+      function utcToday() {
+        const now = new Date();
+        return toUtcDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
       }
 
       function addDays(date, days) {
@@ -468,6 +684,32 @@
         const day = date.getUTCDate();
         const weekday = weekdays[date.getUTCDay()];
         return `${year}년 ${month}월 ${day}일 (${weekday})`;
+      }
+
+      function showError(box, message) {
+        box.hidden = false;
+        box.textContent = message;
+      }
+
+      function clearError(box) {
+        box.hidden = true;
+        box.textContent = "";
+      }
+
+      function parseNonNegativeInteger(value) {
+        const parsed = Number(value);
+        if (!Number.isInteger(parsed) || parsed < 0) {
+          return null;
+        }
+        return parsed;
+      }
+
+      function parsePositiveInteger(value) {
+        const parsed = Number(value);
+        if (!Number.isInteger(parsed) || parsed < 1) {
+          return null;
+        }
+        return parsed;
       }
 
       function parseManufactureDate() {
@@ -506,16 +748,6 @@
         syncingInputs = false;
       }
 
-      function showError(message) {
-        errorBox.hidden = false;
-        errorBox.textContent = message;
-      }
-
-      function clearError() {
-        errorBox.hidden = true;
-        errorBox.textContent = "";
-      }
-
       function setCountdownRows(expiryDate) {
         countdownBody.innerHTML = "";
 
@@ -532,8 +764,7 @@
       }
 
       function setStatus(expiryDate) {
-        const now = new Date();
-        const today = toUtcDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
+        const today = utcToday();
         const diffDays = Math.round((expiryDate.getTime() - today.getTime()) / 86400000);
 
         statusResult.className = "result-value";
@@ -550,29 +781,29 @@
         }
       }
 
-      function calculate() {
-        clearError();
+      function calculateForward() {
+        clearError(errorBox);
 
         const manufactureDate = parseManufactureDate();
-        const termDays = Number(termInput.value);
-        const minusDays = Number(minusInput.value);
+        const termDays = parsePositiveInteger(termInput.value);
+        const minusDays = parseNonNegativeInteger(minusInput.value);
 
         if (!manufactureDate) {
-          showError("제조일을 정확한 날짜로 입력해줘.");
-          return;
+          showError(errorBox, "제조일을 정확한 날짜로 입력해줘.");
+          return false;
         }
 
-        if (!Number.isInteger(termDays) || termDays < 0) {
-          showError("제조일로부터 X일은 0 이상의 정수로 입력해줘.");
-          return;
+        if (termDays === null) {
+          showError(errorBox, "총 소비기한 일수는 1 이상의 정수로 입력해줘.");
+          return false;
         }
 
-        if (!Number.isInteger(minusDays) || minusDays < 0) {
-          showError("최종 소비기한에서 X일 전 값은 0 이상의 정수로 입력해줘.");
-          return;
+        if (minusDays === null) {
+          showError(errorBox, "최종 소비기한에서 X일 전 값은 0 이상의 정수로 입력해줘.");
+          return false;
         }
 
-        const expiryDate = addDays(manufactureDate, termDays);
+        const expiryDate = addDays(manufactureDate, termDays - 1);
         const minusDate = addDays(expiryDate, -minusDays);
         const expiredFromDate = addDays(expiryDate, 1);
 
@@ -584,28 +815,166 @@
 
         setStatus(expiryDate);
         setCountdownRows(expiryDate);
+        return true;
+      }
+
+      function calculateReverse(baseDate, remainingDays, totalTerm) {
+        const expiryDate = addDays(baseDate, remainingDays);
+        const manufactureDate = addDays(expiryDate, -(totalTerm - 1));
+        return { expiryDate, manufactureDate };
+      }
+
+      function renderPresetProducts() {
+        const baseDate = utcToday();
+        reverseBaseCopy.textContent = `오늘 기준 ${formatKorean(
+          baseDate
+        )}를 바탕으로 남은 날짜를 더한 뒤 제조일을 역산해.`;
+        presetGrid.innerHTML = "";
+
+        PRESET_PRODUCTS.forEach((product) => {
+          const { expiryDate, manufactureDate } = calculateReverse(
+            baseDate,
+            product.remainingDays,
+            product.totalTerm
+          );
+
+          const card = document.createElement("article");
+          card.className = "preset-card";
+
+          const head = document.createElement("div");
+          head.className = "preset-head";
+
+          const name = document.createElement("strong");
+          name.className = "preset-name";
+          name.textContent = product.name;
+
+          const badge = document.createElement("span");
+          badge.className = "preset-badge";
+          badge.textContent =
+            product.remainingDays === 0 ? "오늘까지" : `오늘 기준 ${product.remainingDays}일 남음`;
+
+          head.append(name, badge);
+
+          const meta = document.createElement("div");
+          meta.className = "preset-meta";
+
+          const remainingCard = document.createElement("div");
+          remainingCard.className = "mini-card";
+          remainingCard.innerHTML = `
+            <span class="mini-label">남은 날짜</span>
+            <span class="mini-value">${
+              product.remainingDays === 0 ? "0일" : `${product.remainingDays}일`
+            }</span>
+          `;
+
+          const totalCard = document.createElement("div");
+          totalCard.className = "mini-card";
+          totalCard.innerHTML = `
+            <span class="mini-label">총 소비기한</span>
+            <span class="mini-value">${product.totalTerm}일</span>
+          `;
+
+          const expiryCard = document.createElement("div");
+          expiryCard.className = "mini-card";
+          expiryCard.innerHTML = `
+            <span class="mini-label">소비기한 마지막 날</span>
+            <span class="mini-value">${formatKorean(expiryDate)}</span>
+          `;
+
+          const manufactureCard = document.createElement("div");
+          manufactureCard.className = "mini-card emphasis-card";
+          manufactureCard.innerHTML = `
+            <span class="mini-label">제조일</span>
+            <span class="mini-value">${formatKorean(manufactureDate)}</span>
+          `;
+
+          meta.append(remainingCard, totalCard, expiryCard, manufactureCard);
+          card.append(head, meta);
+          presetGrid.append(card);
+        });
+      }
+
+      function resetCustomReverseResult() {
+        reverseBaseDateResult.textContent = formatKorean(utcToday());
+        reverseExpiryResult.textContent = "-";
+        reverseManufactureResult.textContent =
+          "남은 날짜와 총 소비기한을 넣으면 여기서 제조일을 바로 확인할 수 있어.";
+      }
+
+      function calculateCustomReverse({ strict = false } = {}) {
+        clearError(reverseErrorBox);
+        reverseBaseDateResult.textContent = formatKorean(utcToday());
+
+        const remainingRaw = reverseRemainingInput.value.trim();
+        const termRaw = reverseTermInput.value.trim();
+
+        if (!remainingRaw && !termRaw) {
+          resetCustomReverseResult();
+          return false;
+        }
+
+        if (!remainingRaw || !termRaw) {
+          resetCustomReverseResult();
+          if (strict) {
+            showError(reverseErrorBox, "남은 날짜와 총 소비기한을 둘 다 입력해줘.");
+          }
+          return false;
+        }
+
+        const remainingDays = parseNonNegativeInteger(remainingRaw);
+        const totalTerm = parsePositiveInteger(termRaw);
+
+        if (remainingDays === null) {
+          resetCustomReverseResult();
+          showError(reverseErrorBox, "남은 날짜는 0 이상의 정수로 입력해줘.");
+          return false;
+        }
+
+        if (totalTerm === null) {
+          resetCustomReverseResult();
+          showError(reverseErrorBox, "총 소비기한은 1 이상의 정수로 입력해줘.");
+          return false;
+        }
+
+        const { expiryDate, manufactureDate } = calculateReverse(
+          utcToday(),
+          remainingDays,
+          totalTerm
+        );
+
+        reverseExpiryResult.textContent = formatKorean(expiryDate);
+        reverseManufactureResult.textContent = formatKorean(manufactureDate);
+        return true;
       }
 
       function setToday() {
-        const today = new Date();
+        const today = utcToday();
         syncingInputs = true;
-        yearInput.value = today.getFullYear();
-        monthInput.value = today.getMonth() + 1;
-        dayInput.value = today.getDate();
-        datePicker.value = [
-          today.getFullYear(),
-          String(today.getMonth() + 1).padStart(2, "0"),
-          String(today.getDate()).padStart(2, "0"),
-        ].join("-");
+        yearInput.value = today.getUTCFullYear();
+        monthInput.value = today.getUTCMonth() + 1;
+        dayInput.value = today.getUTCDate();
+        datePicker.value = formatIso(today);
         syncingInputs = false;
-        calculate();
+        calculateForward();
+      }
+
+      function setActiveTab(targetTab) {
+        tabButtons.forEach((button) => {
+          const isActive = button.dataset.tab === targetTab;
+          button.classList.toggle("active", isActive);
+          button.setAttribute("aria-selected", String(isActive));
+        });
+
+        panels.forEach((panel) => {
+          panel.hidden = panel.dataset.panel !== targetTab;
+        });
       }
 
       [yearInput, monthInput, dayInput].forEach((input) => {
         input.addEventListener("input", () => {
           syncManualToPicker();
           if (parseManufactureDate()) {
-            calculate();
+            calculateForward();
           }
         });
       });
@@ -613,22 +982,37 @@
       datePicker.addEventListener("input", () => {
         syncPickerToManual();
         if (parseManufactureDate()) {
-          calculate();
+          calculateForward();
         }
       });
 
       [termInput, minusInput].forEach((input) => {
         input.addEventListener("input", () => {
           if (parseManufactureDate()) {
-            calculate();
+            calculateForward();
           }
         });
       });
 
-      calculateButton.addEventListener("click", calculate);
+      [reverseRemainingInput, reverseTermInput].forEach((input) => {
+        input.addEventListener("input", () => {
+          calculateCustomReverse();
+        });
+      });
+
+      calculateButton.addEventListener("click", calculateForward);
       todayButton.addEventListener("click", setToday);
 
+      tabButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          setActiveTab(button.dataset.tab);
+        });
+      });
+
       setToday();
+      renderPresetProducts();
+      resetCustomReverseResult();
+      setActiveTab("forward");
     </script>
   </body>
 </html>
